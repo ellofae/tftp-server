@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -86,20 +87,21 @@ func (s Server) handleReadPacket(clientAddr string, readPacket packets.ReadReque
 	}
 	defer func() { _ = conn.Close() }()
 
-	dataPayload, err := os.ReadFile(readPacket.Filename)
+	dataPayload, err := os.ReadFile(fmt.Sprintf("/srv/tftp/%s", readPacket.Filename))
 	if err != nil {
-		log.Printf("[server] unable to get the requested file by %s, error: %w", clientAddr, err)
+		log.Printf("[server] unable to get the requested file by %s, error: %w", clientAddr, err.Error())
+		return
 	}
 
 	var (
 		ackPacket  packets.AckPacket
 		errPacket  packets.ErrorPacket
 		dataPacket = packets.DataPacket{Payload: bytes.NewReader(dataPayload)}
-		buf        = make([]byte, packets.DataBlockSize)
+		buf        = make([]byte, packets.PacketSize)
 	)
 
 NEXTPACKET:
-	for n := packets.DataBlockSize; n == packets.DataBlockSize; {
+	for n := packets.PacketSize; n == packets.PacketSize; {
 		data, err := dataPacket.MarshalBinary()
 		if err != nil {
 			log.Printf("[server] unable to prepare data packet for %v, error: %w", clientAddr, err)
@@ -133,7 +135,10 @@ NEXTPACKET:
 			switch {
 			case ackPacket.UnmarshalBinary(buf) == nil:
 				// ACK packet from client has been received
-				continue NEXTPACKET
+				if uint16(ackPacket.BlockNumber) == dataPacket.BlockNumber {
+					// received ACK; send next data packet
+					continue NEXTPACKET
+				}
 			case errPacket.UnmarshalBinary(buf) == nil:
 				log.Printf("[server] an error was recevied instead of ACK packet from %s", clientAddr)
 				return

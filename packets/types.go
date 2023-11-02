@@ -7,7 +7,7 @@ const (
 	DataBlockSize = PacketSize - 4
 )
 
-type OperationCode uint8
+type OperationCode uint16
 
 const (
 	OperationReadRequest  OperationCode = iota + 1 // RRQ packet code
@@ -17,7 +17,7 @@ const (
 	OperationError                                 // ERROR packet code
 )
 
-type ErrorCode uint8
+type ErrorCode uint16
 
 // TFTP (RFC 1350) errors
 const (

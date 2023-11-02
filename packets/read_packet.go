@@ -68,6 +68,10 @@ func (rq *ReadRequest) UnmarshalBinary(data []byte) error {
 		return err
 	}
 
+	if code != OperationReadRequest {
+		return errors.New("invalid operation code for the READ packet")
+	}
+
 	// Reading bytes from buffer until 0 delimiter, including the delimiter
 	rq.Filename, err = buf.ReadString(0)
 	if err != nil {
@@ -91,7 +95,7 @@ func (rq *ReadRequest) UnmarshalBinary(data []byte) error {
 	}
 
 	actual := strings.ToLower(rq.Mode)
-	if actual != "octets" {
+	if actual != "octet" {
 		return errors.New("invalid READ packet, only binary transfers are supported")
 	}
 
