@@ -1,0 +1,4 @@
+ServerConfiguration:
+  retries: '6'
+  timeout: '10'
+  address: '127.0.0.1:69'
