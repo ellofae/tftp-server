@@ -18,6 +18,26 @@ type Server struct {
 	Timeout time.Duration
 }
 
+func getFilePayload(tftp_dir string, filename string, clientAddr string) ([]byte, error) {
+	if _, err := os.Stat(tftp_dir + filename); err != nil {
+		if os.IsNotExist(err) {
+			log.Printf("[server] file '%s' does not exist, error: %s", filename, err.Error())
+			return nil, err
+		}
+
+		log.Printf("[server] cannot get file info for %s, error: %v", filename, err)
+		return nil, err
+	}
+
+	dataPayload, err := os.ReadFile(tftp_dir + filename)
+	if err != nil {
+		log.Printf("[server] unable to get '%s' by %s, error: %s", filename, clientAddr, err.Error())
+		return nil, err
+	}
+
+	return dataPayload, nil
+}
+
 func ConfigureServer(cfg *config.Config) (*Server, error) {
 	retries, err := strconv.Atoi(cfg.ServerConfiguration.Retries)
 	if err != nil {
@@ -63,7 +83,8 @@ func (s *Server) Serve(conn net.PacketConn, tftp_dir string) error {
 
 		_, addr, err := conn.ReadFrom(buf)
 		if err != nil {
-			return err
+			log.Printf("[server] error reading from connection %s, error %v", addr, err)
+			continue
 		}
 
 		err = readPacket.UnmarshalBinary(buf)
@@ -72,6 +93,7 @@ func (s *Server) Serve(conn net.PacketConn, tftp_dir string) error {
 			continue
 		}
 
+		// handling DATA packet sending
 		go s.handleReadPacket(addr.String(), readPacket, tftp_dir)
 	}
 }
@@ -86,9 +108,26 @@ func (s Server) handleReadPacket(clientAddr string, readPacket packets.ReadReque
 	}
 	defer func() { _ = conn.Close() }()
 
-	dataPayload, err := os.ReadFile(tftp_dir + readPacket.Filename)
+	// getting data payload from TFTP server if the requested data exists
+	// if _, err := os.Stat(tftp_dir + readPacket.Filename); err != nil {
+	// 	if os.IsNotExist(err) {
+	// 		log.Printf("[server] file '%s' does not exist, error: %s", readPacket.Filename, err.Error())
+	// 		return
+	// 	}
+
+	// 	log.Printf("[server] cannot get file info for %s, error: %v", readPacket.Filename, err)
+	// 	return
+	// }
+
+	// dataPayload, err := os.ReadFile(tftp_dir + readPacket.Filename)
+	// if err != nil {
+	// 	log.Printf("[server] unable to get '%s' by %s, error: %s", readPacket.Filename, clientAddr, err.Error())
+	// 	return
+	// }
+
+	// getting data payload from TFTP server if the requested data exists
+	dataPayload, err := getFilePayload(tftp_dir, readPacket.Filename, clientAddr)
 	if err != nil {
-		log.Printf("[server] unable to get '%s' by %s, error: %s", readPacket.Filename, clientAddr, err.Error())
 		return
 	}
 
