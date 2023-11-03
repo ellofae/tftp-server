@@ -109,23 +109,6 @@ func (s Server) handleReadPacket(clientAddr string, readPacket packets.ReadReque
 	defer func() { _ = conn.Close() }()
 
 	// getting data payload from TFTP server if the requested data exists
-	// if _, err := os.Stat(tftp_dir + readPacket.Filename); err != nil {
-	// 	if os.IsNotExist(err) {
-	// 		log.Printf("[server] file '%s' does not exist, error: %s", readPacket.Filename, err.Error())
-	// 		return
-	// 	}
-
-	// 	log.Printf("[server] cannot get file info for %s, error: %v", readPacket.Filename, err)
-	// 	return
-	// }
-
-	// dataPayload, err := os.ReadFile(tftp_dir + readPacket.Filename)
-	// if err != nil {
-	// 	log.Printf("[server] unable to get '%s' by %s, error: %s", readPacket.Filename, clientAddr, err.Error())
-	// 	return
-	// }
-
-	// getting data payload from TFTP server if the requested data exists
 	dataPayload, err := getFilePayload(tftp_dir, readPacket.Filename, clientAddr)
 	if err != nil {
 		return
