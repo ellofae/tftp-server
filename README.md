@@ -12,27 +12,27 @@ TFTP operates using various packet types that serve different functions in the f
 
 ### READ packet (Read Request):
 
-    The primary purpose of the RRQ packet is to request a specific file from the TFTP server. The client sends this packet to the server to initiate the process of reading a file. The client specifies the filename it wants to retrieve and the mode of transfer (octet, netascii).
+The primary purpose of the RRQ packet is to request a specific file from the TFTP server. The client sends this packet to the server to initiate the process of reading a file. The client specifies the filename it wants to retrieve and the mode of transfer (octet, netascii).
 
     RRQ packet is composed of Operation Code(2-bytes), Filename(n-bytes), 1-byte delimiter, Mode(n-bytes) and 1-byte delimiter.
 
 ### DATA packet:
 
-    TFTP divides the file into smaller blocks or packets for efficient transfer. The DATA packet is responsible for carrying a portion of the file's data.
+TFTP divides the file into smaller blocks or packets for efficient transfer. The DATA packet is responsible for carrying a portion of the file's data.
 
-    The size of each DATA packet is relatively small (typically 516 bytes): 512 bytes for file payload and 4 bytes for packet header.
+The size of each DATA packet is relatively small (typically 516 bytes): 512 bytes for file payload and 4 bytes for packet header.
 
     DATA packet is composed of Operation Code(2-bytes), Package Number(2-bytes) and Payload(up to 512 bytes).
 
 ### ACK packet (Acknowledgment):
 
-    After the client receives a data packet, it sends an ACK packet to the server. The ACK packet essentially confirms that the data packet was successfully received without errors. This acknowledgment is crucial because it informs the server that it can send the next data packet.
+After the client receives a data packet, it sends an ACK packet to the server. The ACK packet essentially confirms that the data packet was successfully received without errors. This acknowledgment is crucial because it informs the server that it can send the next data packet.
 
     ACK packet is composed of Operation Code(2-bytes) and Recieved Packet Number(2-bytes).
 
 ### ERROR packet:
 
-    The ERR packet is used to notify the sender or receiver of a TFTP operation about an error that has occurred during the transfer.
+The ERR packet is used to notify the sender or receiver of a TFTP operation about an error that has occurred during the transfer.
 
     RFC 1350 Error codes:
     
