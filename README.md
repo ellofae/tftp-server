@@ -60,7 +60,7 @@ or exhausts its number of retries.
 Before you proceed with running the TFTP server on Linux, make sure you have installed the TFTP server and client on your host machine.
 
 ### Installation
-In order to install it, you need to run `make install-tftp` or run the `./install_tftp.sh` bash script. TFTP server and client will be installed.
+In order to install it, you need to run `make install-tftp port` or run the `./install_tftp.sh port` bash script. TFTP server and client will be installed.
 
 By default, TFTP server is running on port **:69**, which menas, if you intend to run the tftp-server on this port, you need to release it.
 
