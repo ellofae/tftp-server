@@ -5,7 +5,7 @@ release-tftp-port:
 
 .PHONY: run-server
 
-run-server: release_tftp_port
+run-server: release-tftp-port
 	GOOS=linux GOARCH=amd64 go build -o main main.go
 	sudo ./main
 

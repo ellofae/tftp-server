@@ -4,6 +4,8 @@ Trivial File Transfer Protocol (TFTP) is a simple lockstep File Transfer Protoco
 
 Due to its simple design, TFTP can be easily implemented by code with a small memory footprint. It is therefore the protocol of choice for the initial stages of any network booting strategy like BOOTP, PXE, BSDP, etc.
 
+Due to TFTP DATA and ACK packets 2-bytes Block Counter, the maximum file size that the server is able to send to the client is `~= 33.8 MB` (516 bytes * 65535)
+
 ## TFTP protocol packets
 
 TFTP operates using various packet types that serve different functions in the file transfer process.
@@ -88,3 +90,9 @@ The TFTP server uses .yaml file to configure. Here is the example of a config.ya
     timeout: '10'
     address: '127.0.0.1:69'
     tftp_directory: '/srv/tftp'
+
+## Usage example
+
+TFTP server is running on port **:69** and TFTP client is connected to the server running on localhost.
+
+![main](https://i.imgur.com/QoDenCW.png)
