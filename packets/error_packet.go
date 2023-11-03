@@ -61,7 +61,7 @@ func (rp *ErrorPacket) UnmarshalBinary(data []byte) error {
 		return errors.New("invalid ERROR packet, operation code is not Error(OperationError)")
 	}
 
-	err = binary.Read(buf, binary.BigEndian, rp.Error)
+	err = binary.Read(buf, binary.BigEndian, &rp.Error)
 	if err != nil {
 		return err
 	}

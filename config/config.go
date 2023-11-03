@@ -8,9 +8,10 @@ import (
 
 type Config struct {
 	ServerConfiguration struct {
-		Retries string `yaml:"retries"`
-		Timeout string `yaml:"timeout"`
-		Address string `yaml:"address"`
+		Retries        string `yaml:"retries"`
+		Timeout        string `yaml:"timeout"`
+		Address        string `yaml:"address"`
+		TFTP_directory string `yaml:"tftp_directory"`
 	} `yaml:"ServerConfiguration"`
 }
 
@@ -22,7 +23,7 @@ func ConfigureViper() *viper.Viper {
 
 	err := v.ReadInConfig()
 	if err != nil {
-		log.Fatalf("Unable to read the configuration file, error: %w\n", err.Error())
+		log.Fatalf("Unable to read the configuration file, error: %s\n", err.Error())
 	}
 	log.Println("Config loaded successfully.")
 

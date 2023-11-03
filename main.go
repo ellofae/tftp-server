@@ -16,6 +16,7 @@ func main() {
 	}
 
 	tftpServerAddress := cfg.ServerConfiguration.Address
+	tftpServerDirectory := cfg.ServerConfiguration.TFTP_directory
 
-	log.Fatal(srv.ListenAndServe(tftpServerAddress))
+	log.Fatal(srv.ListenAndServe(tftpServerAddress, tftpServerDirectory))
 }

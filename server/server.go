@@ -3,7 +3,6 @@ package server
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -40,19 +39,19 @@ func ConfigureServer(cfg *config.Config) (*Server, error) {
 	}, nil
 }
 
-func (s Server) ListenAndServe(addr string) error {
+func (s Server) ListenAndServe(addr string, tftp_dir string) error {
 	conn, err := net.ListenPacket("udp", addr)
 	if err != nil {
 		return err
 	}
 	defer func() { _ = conn.Close }()
 
-	log.Printf("TFTP server is listening on %s...\n", conn.LocalAddr())
+	log.Printf("TFTP server is listening on %s ...\n", conn.LocalAddr())
 
-	return s.Serve(conn)
+	return s.Serve(conn, tftp_dir)
 }
 
-func (s *Server) Serve(conn net.PacketConn) error {
+func (s *Server) Serve(conn net.PacketConn, tftp_dir string) error {
 	if conn == nil {
 		return errors.New("server: nil connection")
 	}
@@ -73,23 +72,23 @@ func (s *Server) Serve(conn net.PacketConn) error {
 			continue
 		}
 
-		go s.handleReadPacket(addr.String(), readPacket)
+		go s.handleReadPacket(addr.String(), readPacket, tftp_dir)
 	}
 }
 
-func (s Server) handleReadPacket(clientAddr string, readPacket packets.ReadRequest) {
+func (s Server) handleReadPacket(clientAddr string, readPacket packets.ReadRequest, tftp_dir string) {
 	log.Printf("[%s] requested file: %s", clientAddr, readPacket.Filename)
 
 	conn, err := net.Dial("udp", clientAddr)
 	if err != nil {
-		log.Printf("[server]: unable to establish dial udp connection with %s, error: %w", clientAddr, err)
+		log.Printf("[server]: unable to establish dial udp connection with %s, error: %v", clientAddr, err)
 		return
 	}
 	defer func() { _ = conn.Close() }()
 
-	dataPayload, err := os.ReadFile(fmt.Sprintf("/srv/tftp/%s", readPacket.Filename))
+	dataPayload, err := os.ReadFile(tftp_dir + readPacket.Filename)
 	if err != nil {
-		log.Printf("[server] unable to get the requested file by %s, error: %w", clientAddr, err.Error())
+		log.Printf("[server] unable to get '%s' by %s, error: %s", readPacket.Filename, clientAddr, err.Error())
 		return
 	}
 
@@ -104,7 +103,7 @@ NEXTPACKET:
 	for n := packets.PacketSize; n == packets.PacketSize; {
 		data, err := dataPacket.MarshalBinary()
 		if err != nil {
-			log.Printf("[server] unable to prepare data packet for %v, error: %w", clientAddr, err)
+			log.Printf("[server] unable to prepare data packet for %v, error: %v", clientAddr, err)
 			return
 		}
 
@@ -113,7 +112,7 @@ NEXTPACKET:
 			n, err = conn.Write(data)
 			if err != nil {
 				// if connection with the client cannot be established, then the DATA packet is lost
-				log.Printf("[server]: unable to send packet to client on address %s, error: %w", clientAddr, err)
+				log.Printf("[server]: unable to send packet to client on address %s, error: %v", clientAddr, err)
 				return
 			}
 
@@ -128,7 +127,7 @@ NEXTPACKET:
 					continue RETRY
 				}
 
-				log.Printf("[server] ACK packet from %s was not received because of internal error, error: %w", clientAddr, err)
+				log.Printf("[server] ACK packet from %s was not received because of internal error, error: %v", clientAddr, err)
 				return
 			}
 

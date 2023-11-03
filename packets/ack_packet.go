@@ -49,5 +49,5 @@ func (ap *AckPacket) UnmarshalBinary(data []byte) error {
 		return errors.New("invalid ACKS packet, operation code is not Acknowledgment code")
 	}
 
-	return binary.Read(buf, binary.BigEndian, ap.BlockNumber)
+	return binary.Read(buf, binary.BigEndian, &ap.BlockNumber)
 }

@@ -9,7 +9,7 @@ import (
 )
 
 // DATA packet: Opeartion Code | Block Number | Payload
-// DATA packet's size: 2 bytes + 2 bytes + n bytes + 1
+// DATA packet's size: 2 bytes + 2 bytes + n bytes
 
 type DataPacket struct {
 	BlockNumber uint16
@@ -65,6 +65,8 @@ func (dp *DataPacket) UnmarshalBinary(data []byte) error {
 	if err != nil {
 		return errors.New("invalid DATA packet, unable to read the payload")
 	}
+
+	// dp.Payload = bytes.NewBuffer(data[4:])
 
 	return nil
 }
