@@ -19,7 +19,7 @@ type Server struct {
 }
 
 func getFilePayload(tftp_dir string, filename string, clientAddr string) ([]byte, error) {
-	if _, err := os.Stat(tftp_dir + filename); err != nil {
+	if _, err := os.Stat(tftp_dir + "/" + filename); err != nil {
 		if os.IsNotExist(err) {
 			log.Printf("[server] file '%s' does not exist, error: %s", filename, err.Error())
 			return nil, err
@@ -29,7 +29,7 @@ func getFilePayload(tftp_dir string, filename string, clientAddr string) ([]byte
 		return nil, err
 	}
 
-	dataPayload, err := os.ReadFile(tftp_dir + filename)
+	dataPayload, err := os.ReadFile(tftp_dir + "/" + filename)
 	if err != nil {
 		log.Printf("[server] unable to get '%s' by %s, error: %s", filename, clientAddr, err.Error())
 		return nil, err
